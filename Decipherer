@@ -1,0 +1,201 @@
+/*
+SUMMARY
+
+The user wants to decipher an encrypted text file. The program asks for the
+type of cypher they wish to decipher or to exit the program. The user then 
+inputs the name of the file they want to decipher and the program displays
+the original alphabet, the encrypted alphabet, the encrypted text, and the
+deciphered text.
+
+INPUT
+
+The user inputs two values.
+-First, a char to represent the cypher to use or to exit program
+-Second, a string to represent the file they wish to decrypt
+
+OUTPUT
+
+The program prints an introduction, asks the user for the desired inputs (re-
+prompting for invalid inputs), the original and encrypted alphabets, the
+encrypted text, and the decrypted text under it.
+
+ASSUMPTIONS
+
+The user inputs a single non-blank character and hits enter when asked.
+The user inputs a string to represent the file name.
+*/
+
+/* HEADER FILES */
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <cstdlib>
+#include <string>
+using namespace std;
+
+/* GLOBAL */
+
+// Constants and typedef
+const int LENGTH = 25;
+typedef char Text [LENGTH];
+const string ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Function prototypes
+int indexOf(Text key, char code);
+void userInput(bool& loop);
+void decrypt(string fileName, char cypher);
+
+/* MAIN FUNCTION */
+
+int main(){
+	//Declaring loop variable
+	bool loop = true;
+	
+	// Prints introduction and calls function	
+	cout << "************************\n";
+	cout << "Welcome to the Decrypter\n";
+	cout << "You can either select a Caesar or Substitution decryption.\n";
+	cout << "You will then input the file to be decrypted.\n";
+	cout << "************************\n";
+	
+	// Loops asking user input until exit input
+	while (loop){
+		userInput(loop);
+	}
+	return 0;
+}
+
+/* FUNCTIONS */
+
+// Asks for inputs, checks, and passes to decipher function
+void userInput(bool& loop){
+	// Declaring variables
+	char select = 'i';
+	ifstream File;
+	string fileName;
+	bool invalidName = true;
+	
+	// Asking for input and checks
+	while (select == 'i'){
+		cout << "\nWhat would you like to do?\n";
+		cout << "To decode using the substitution cypher, enter s\n";
+		cout << "To decode using the Caesar cypher, enter c\n";
+		cout << "To quit the program, enter x\n";
+		cout << "What is your selection? ";
+		cin >> select;
+		if (!(select == 'x' || select == 'c' || select == 's')){
+			cout << "Invalid input, try again.\n";
+			select = 'i';
+		}
+	}
+	// Exits program or calls decipher function
+	if (select == 'x'){
+		cout << "*********************\n";
+		cout << "Exiting the Decrypter\n";
+		cout << "*********************\n";
+		loop = false;
+	} else {
+		// Asks for file name and checks 
+		while (invalidName){
+			cout << "\nFile names cannot have blanks.\n";
+			cout << "Enter the file name to decode: ";
+			cin >> fileName;
+			File.open(fileName);
+			if (!File){
+				cout << "Invalid file name, try again.\n";
+				invalidName = true;
+			} else {
+				invalidName = false;
+			}
+			File.close();
+		}
+		// Passes file and decryption type to decipher function
+		decrypt(fileName, select);
+	}
+}
+
+// Returns the index of encrypted char in key array
+int indexOf(Text key, char code){
+	// Declare variable
+	string keyChar;
+	// Converts typedef array to string to compare to the
+	// encrypted char and returns corresponding index in key
+	for (int lcv = 0; lcv < LENGTH; lcv++){
+		keyChar = key[lcv];
+		if (keyChar[0] == code){
+			return lcv;
+		}
+	}
+	return 0;
+}
+
+// Obtains file, creates appropriate key and outputs alphabet, encryption,
+// encrypted text, and unencrypted text
+void decrypt(string fileName, char cypher){
+	// Declaring variables
+        ifstream File;
+        int shift;
+        string textLine, line;
+        Text key, alphabet;
+	
+	// Opening file and obtaining first line
+	File.open(fileName);
+	getline(File, textLine);
+	
+	// Prints appropriate intro and creates key
+	if (cypher == 's'){
+	        // Outputting intro
+        	cout << "*********************************\n";
+	        cout << "Decrypting using Substitution set\n";
+	        cout << "*********************************\n";
+	        cout << "Original alphabet: " << ALPHABET << endl;
+	
+	        cout << "Encrypted alphabet: " << textLine << endl;
+	        // Copies key to typedef array
+	        for (unsigned int lcv = 0; lcv < textLine.length(); lcv++){
+	                key[lcv] = textLine[lcv];
+	        }
+	} else if (cypher == 'c'){
+		// Outputting intro
+	        cout << "****************************************\n";
+	        cout << "Decrypting using Caesar Substitution set\n";
+	        cout << "****************************************\n";	
+	        cout << "Original alphabet: " << ALPHABET << endl;
+		
+	        shift = textLine[0] - 48;
+	        cout << "Shift Value: " << shift << endl;
+	        cout << "Encrypted alphabet: ";
+	
+	        // Creates key to decrypt, prints it out
+	        for (unsigned int lcv = 0; lcv < ALPHABET.length(); lcv++){
+	                if ((int)ALPHABET[lcv] + shift > 90){
+				 key[lcv] = char((int)ALPHABET[lcv] +shift-26);
+                	} else {
+                	        key[lcv] = char((int)ALPHABET[lcv] + shift);
+              		}
+                	cout << key[lcv];	
+		}
+		cout << "\n";	
+	}
+	// Copies alphabet string to alphabet typedef array
+        for (unsigned int lcv = 0; lcv < ALPHABET.length(); lcv++){
+                alphabet[lcv] = ALPHABET[lcv];
+        }
+        // Decrypting and printing text
+        while (getline(File, line)){
+		cout << line << endl;
+                for (unsigned int lcv = 0; lcv < line.length(); lcv++){
+                        // Decrypts text and outputs
+                        if (line[lcv] == ',' || line[lcv] == '.'){
+                                cout << line[lcv];
+                        } else if (line[lcv] != ' '){
+                                cout << alphabet[indexOf(key, line[lcv])];
+                        } else {
+                                cout << " ";
+                        }
+                }
+                // Outputs new line
+                cout << "\n\n";
+        }
+} 
