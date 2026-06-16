@@ -1,0 +1,113 @@
+/*
+SUMMARY
+
+The user wants to calculate how much the ISP would charge based on the package
+selected and the amount of hours used. The user inputs the package selected and
+amount of hours used. The program then outputs the cost. If the more advanced 
+packages are cheaper, it also displays how much they would save if they selected
+those instead.
+
+INPUT
+
+The user inputs two values.
+-First, a char to represent which package they have
+-Second, an int to represent how many hours they used the service
+
+OUTPUT
+
+The monthly charge for their package and how many hours used. Also outputs how
+much money they would save if they switch to the other plans if it was cheaper.
+
+ASSUMPTIONS
+
+The user inputs a single non-blank character and hits enter when asked for a character.
+The user inputs an integer value and hits enter when asked for a whole number.
+*/
+
+/* HEADER FILES */
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+/* MAIN FUNCTION */
+
+int main()
+{
+	// Setting package constants
+	//  ppm = price per month, hours = hours provided, extra = price per additional hour
+	const double packageAppm = 9.95,
+		     packageBppm = 14.95,
+		     packageCppm = 19.95;
+
+	const int packageAHours = 10,
+		  packageBHours = 20;
+
+	const double packageAExtra = 2.00,
+		     packageBExtra = 1.00;
+
+	// Setting customer variables
+	char customerPackage;
+	int customerHours;
+	double chargesA,
+	       chargesB;
+	bool valid = true;
+
+	// Print the output title
+	cout << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=" << endl;
+	cout << "Welcome to the ISP Billing Calculator" << endl;
+	cout << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=" << endl << endl;
+
+	// Inputs customer data and checks validity
+	cout << "Which package does the customer use (A, B, or C)? ";
+	cin >> customerPackage;
+	// Checks if package input is valid
+	if (!(customerPackage == 'A' || customerPackage == 'a' || customerPackage == 'B' || customerPackage == 'b' || customerPackage == 'C' || customerPackage == 'c')){
+		cout << "\nPackage choice input invalid." << endl;
+		valid = false;
+	}
+	// Checks if package input is valid then asks for hours input and checks its validity
+	if (valid){
+		cout << "How many hours did the customer use last month? ";
+		cin >> customerHours;
+		if (customerHours < 0 || customerHours > 744){
+			cout << "\nHours input invalid." << endl;
+			valid = false;
+		}
+	}
+	// Calculates charges, checks if hours are included in the plan
+	if (customerHours > packageAHours){
+		chargesA = packageAppm + ((customerHours - packageAHours) * packageAExtra);
+	} else {
+		chargesA = packageAppm;
+	}
+	if (customerHours > packageBHours){
+		chargesB = packageBppm + ((customerHours - packageBHours) * packageBExtra);
+	} else {
+		chargesB = packageBppm;
+	}
+	
+	// Outputs charges and calculates savings based on package and if the input was valid
+	if (valid){
+		if (customerPackage == 'A' || customerPackage == 'a'){
+			cout << "The charges are $" << chargesA << endl << endl;
+			if (chargesA > chargesB){
+				cout << "By switching to Package B you would save $" << (chargesA - chargesB) << endl << endl;
+			}
+			if (chargesA > packageCppm){
+				cout << "By switching to Package C you would save $" << (chargesA - packageCppm) << endl << endl;
+			}
+		}
+		if (customerPackage == 'B' || customerPackage == 'b'){
+			cout << "The charges are $" << chargesB << endl << endl;
+			if (chargesB > packageCppm){
+				cout << "By switching to Package C you would save $" << (chargesB - packageCppm) << endl;
+			}
+		}
+		if (customerPackage == 'C' || customerPackage == 'c'){
+			cout << "The charges are $" << packageCppm << endl;
+		}
+	}
+
+	return 0;
+}
