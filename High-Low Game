@@ -1,0 +1,171 @@
+/*
+SUMMARY
+
+The program is a guessing game where the user has 6 tries to guess a number 1-100, inclusive.
+The user has $1000 to start with and can make a bet before the game begins. Depending on if 
+the user guesses the number correctly, they either gain money based on amount of guesses to
+guess the value or lose the amount bet if they don't guess it.
+
+INPUT
+
+The user inputs an integer representing the amount they want to bet. They then input more
+integers representing their guesses. Finally, they input a character to indicate if they
+want to play again.
+
+OUTPUT
+
+The program outputs a title header explaining the game. It then instructs the user to input
+their bet, then for their guesses. After each guess, it prints whether the value is too high
+or too low. It then outputs how much the user won/lost, displaying the correct number if they
+lost, and the amount of money they now have. It will then display their winrate as well as
+prompt the user if they wish to play again.
+
+ASSUMPTIONS
+
+The user inputs a valid integer value when prompted for bets.
+The user inputs a valid character when prompted to play again.
+
+/
+
+/* ========================================================================== */
+/* HEADER FILES */
+
+#include <iostream>
+#include <iomanip>
+#include <random>
+using namespace std;
+
+/* ========================================================================== */ 
+/* MAIN FUNCTION */
+
+int main()
+{
+	// Initializing variables
+	int money = 1000;
+	int newMoney;
+	float wins = 0;
+	float games = 0;
+	bool game = true;
+
+	// Initializing functions
+	void PrintHeading(int money);
+	void GetBet(int money, int& bet);
+	int GetGuess(void);
+	int CalcNewMoney(int money, int bet, int guesses);
+	bool PlayAgain(void);
+	int PlayGame(int money);
+	
+	// Establishing random engine
+	random_device engine;
+	uniform_int_distribution<int> randInt(1,100);
+	
+	// Starts game
+	PrintHeading(money);
+	while (game){
+		newMoney = PlayGame(money);
+		if (money < newMoney){
+			wins += 1;
+		}
+		games += 1;
+		if (wins == 0){
+			cout << "You have won 0% of games" << endl;
+		} else if(wins == games){
+			cout << "You have won 100% of games" << endl;
+		} else {
+			cout << "You have won " << (wins/games)*100 << "% of games\n" << endl;
+		}
+		money = newMoney;
+		game = PlayAgain();
+	}
+	cout << "Thanks for playing." << endl;
+}
+
+// Prints introduction and starting money
+void PrintHeading(int money){
+	cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << endl;
+	cout << "Welcome to the high-low betting game." << endl;
+	cout << "You have $" << money << " to begin the game." << endl;
+	cout << "Guess the number from 1 to 100." << endl;
+	cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << endl;
+}
+
+// Asks for bet and checks validity
+void GetBet(int money, int& bet){
+	cout << "Please enter a bet: ";
+	cin >> bet;
+	while (!(money > bet > 0)){
+		cout << "This isn't a valid bet!" << endl;
+		cout << "Please enter a bet: ";
+		cin >> bet;
+	}
+	return;
+}
+
+// Outputs valid guess, returns 0 if invalid
+int GetGuess(void){
+	int guess;
+	cin >> guess;
+	if (101 > guess > 0){
+		return guess;
+	} else {
+		return 0;
+	}
+}
+
+// Calculates amount of money lost/gained and returns it
+int CalcNewMoney(int money, int bet, int guesses){
+	if (guesses == -1){
+		money = money - bet;
+		cout << "You lost $" << bet << endl;
+	} else {
+		cout << "You won $" << bet/guesses << endl;
+		money += bet/guesses;
+	}
+	return money;
+}
+
+// Prompts user to play again, checks input
+bool PlayAgain(void){
+	char input = 'e';
+	while (!(input == 'y' || input == 'Y' || input == 'n' || input == 'N')){
+		cout << "Play again? (y/n)";
+		cin >> input;
+		if (input == 'y' || input == 'Y'){
+			return true;
+		} else if (input == 'n' || input == 'N'){
+			return false;
+		} else {
+			cout << "\nInvalid input." << endl;
+		}
+	}
+}
+
+// Plays a single game, returns how much money player has
+int PlayGame(int money){
+	// Establishing random engine
+        random_device engine;
+        uniform_int_distribution<int> randInt(1,100);
+
+	int answer = randInt(engine);
+	int guess;
+	int bet = 0;
+	GetBet(money, bet);
+	for (int i = 1; i < 7; i++){
+		cout << "Guess " << i << ": ";
+		guess = GetGuess();
+		if(guess == answer){
+			cout << "Correct!" << endl;
+			money = CalcNewMoney(money, bet, i);
+			cout << "You have $" <<  money << endl;
+			return money; 
+		} else if(guess < answer){
+			cout << "Too low." << endl;
+		} else {
+			cout << "Too high." << endl;
+		}
+	}
+	cout << "The correct answer was " <<  answer << endl;
+	money = CalcNewMoney(money, bet, -1);
+	cout << "You have $" << money << endl;
+	return money;
+}
