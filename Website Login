@@ -1,0 +1,152 @@
+/*
+SUMMARY
+
+The user wants to log into a website. This program prompts the user for their
+user ID, password, and PIN to verify the login. If the provided data matches 
+with the text file of data, the program announces the login is successful. If
+it didn't work, the user has 3 total tries to input a correct set of data. The
+program then closes if the user uses up all tries or logs in.
+
+INPUT
+
+The user inputs three values.
+-First, a string to represent the user ID
+-Second, another string to represent the password
+-Third, an int to represent the PIN
+
+OUTPUT
+
+The program prints an introduction, the amount of users, the user data, and the
+desired inputs. The program then re-prompts for an int if it wasn't given for
+the PIN. It then prints if the inputed data is correct or incorrect. When the
+program closes, it prints the reason for the closure.
+
+ASSUMPTIONS
+
+The user inputs a string of numbers and/or ints when asked for an input.
+*/
+
+/* HEADER FILES */
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <cstdlib>
+#include <string>
+using namespace std;
+
+/* GLOBAL */
+
+// Constants, typedef, struct, and file name
+struct User 
+{
+	string ID;
+	string password;
+	int PIN;
+};
+const int LENGTH = 50;
+typedef User Record [LENGTH];
+
+// Function prototypes
+void userInput();
+void createArray(Record& record, int& users);
+
+/* MAIN FUNCTION */
+
+int main(){
+	// Prints intoduction and calls function
+	cout << "*****************************\n";
+	cout << "Welcome to MyGreatWebSite.com\n";
+	cout << "*****************************\n";
+	
+	// Calls function for inputs
+	userInput();
+
+	return 0;
+}
+// End of Main
+
+/* FUNCTIONS */
+
+// Outputs instructions, obtains inputs, verifies if inputs are valid
+void userInput(){
+	// Declaring variables
+	string inputID,
+	inputPass;
+	int users,
+	loop = 0,
+	inputPIN;
+	Record record;
+	
+	// Calls array function and obtains users
+	createArray(record, users);
+	
+	// Loops for 3 tries or until correct
+	while (loop < 3){
+	// Outputs instructions and takes in inputs
+	cout << "************************\n";
+	cout << "Input ID: ";
+	cin >> inputID;
+	cin.clear();
+	cin.ignore(80,'\n');
+	cout << "Input Password: ";
+	cin >> inputPass;
+	cin.clear();
+	cin.ignore(80,'\n');
+	cout << "Input PIN: ";	
+	cin >> inputPIN;
+	while (cin.fail()){
+		cout << "Invalid PIN Input\n";
+		cin.clear();
+		cin.ignore(80,'\n');
+		cout << "Input PIN: ";
+		cin >> inputPIN;
+	}
+	cin.clear();
+	cin.ignore(80,'\n');
+	
+	// Checks if input exists and is correct
+       for (int lcv = 0; lcv < users; lcv++){
+	if (record[lcv].ID == inputID){
+       	 if (record[lcv].password == inputPass && record[lcv].PIN == inputPIN){
+		cout << "Login successful!\n";
+		loop = 5;
+	 }
+	}		
+       }
+	// Checks if login failed and outputs error, increases tries counter
+	if (loop <  3){
+		cout << "Invalid login.\n";
+		loop++;
+	}
+	}
+	// Outputs reason for program closing
+	if (loop < 5){
+		cout << "Too many failed attempts.\n";
+	} else {
+		cout << "You now have access to the website.\n";
+	}
+}
+
+// Creates typedef array and prints data
+void createArray(Record& record, int& users){
+	// Declaring variables
+	ifstream File;
+	string ID,
+	password;
+	int PIN;
+	
+	// Opening file and getting first line
+	File.open("users.txt");
+	File >> users;
+	cout << "There are " << users << " users.\n";
+	
+	// Assigns and prints structs in array
+	for (int lcv = 0; lcv < users; lcv++){
+		File >> ID >> password >> PIN;
+		record[lcv].ID = ID;
+		record[lcv].password = password;
+		record[lcv].PIN = PIN;
+		cout << ID << endl << password << endl << PIN << endl << endl;
+	}
+}
