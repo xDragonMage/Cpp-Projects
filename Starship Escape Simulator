@@ -1,0 +1,144 @@
+/*
+SUMMARY
+
+The user wants to simulate if the Starship can escape a tractor beam
+given their altitude from the planet, the amount of fuel they have, and the 
+strength of the tractor beam. The program takes these values and gives recommendations
+based on the ship's status and ability to escape. The program does this by running a 
+simulation of the situation to figure out the outcome.
+
+INPUT
+
+The user inputs three values.
+-First, an int to represent altitude
+-Second, an int to represent the amount of fuel available
+-Third, an int to represent tractor beam strength
+
+The user can also then input a char at the end to indicate if they want to run
+the simulation again.
+
+OUTPUT
+
+The program outputs the inputs desired, reprints the inputs, then runs a simulation
+based on the inputed values and provided formulas to determine the status of the ship.
+
+ASSUMPTIONS
+
+The user inputs a valid integer value for the three numeric data entries.
+The user inputs a single character when asked whether a new simulation should be run.
+*/
+
+/* HEADER FILES */
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+/* MAIN FUNCTION */
+
+int main()
+{
+	// Setting variables
+	int altitude = 0,
+	    fuel = 0,
+	    beam;
+	double reqFuel;
+
+	// Variable to run another simulation
+	char sim = 'y';
+
+	// Function to determine fuel required
+	double calcFuel (int alt, int strength);
+	
+	// Function to simulate status report
+	void simulate (int alt, int fuelAv, int strength, double fuelReq);
+	
+	// Prints output title
+	cout << "ESCAPE SIMULATION" << endl;
+	cout << "*****************" << endl;
+	
+	// Allows looping of simulation
+	while (sim == 'y' || sim == 'Y'){
+		// Prints instructions, recieves inputs, checks them
+		while (altitude < 1){
+			cout << "Enter the altitude: ";
+			cin >> altitude;
+		}
+		while (fuel < 1){
+			cout << "Enter current fuel supply: ";
+			cin >> fuel;
+		}
+		cout << "Enter the strength of the tractor beam: ";
+		cin >> beam;
+	
+		// Prints simulation title
+		cout << "\n********** Simulation of Ship Status ********" << endl << endl;
+		cout << "The Enterprise is at an altitude of " << altitude << " Km and has a fuel supply of " 
+		<< fuel << " Kg.\nThe tractor beam has a strength of " << beam << " Km/min/min." << endl;
+		
+		// Calls function to calculate fuel required and outputs it
+		reqFuel = calcFuel(altitude, beam);
+		cout << "The amount of fuel required to escape is " << reqFuel << " Kg." << endl;
+		
+		// Checks if there is enough fuel
+		if (reqFuel < fuel){
+			cout << "\nThere is sufficient fuel to escape." << endl;
+			cout << endl << "Recommendation: Start the engines and escape." << endl;
+		} else {
+			cout << "\nThere is insufficient fuel to escape." << endl;
+			cout << endl << "Recommendation: Start increasing fuel." << endl;
+			simulate(altitude, fuel, beam, reqFuel);
+		}
+
+		// Asks to run simulation again, checks input, and resets values
+		sim = 'e';
+		while (!(sim == 'n' || sim == 'N' || sim == 'y' || sim == 'Y')){
+			cout << "Do you want to run another simulation? ";
+			cin >> sim;
+		}
+		altitude = 0;
+		fuel = 0;
+	}
+	return 0;
+}
+
+double calcFuel(int alt, int strength)
+{
+	double fuel;
+	fuel = (1 - (double)alt / 200000) * strength;
+	return fuel;
+}
+
+void simulate(int alt, int fuelAv, int strength, double fuelReq)
+{
+	int time = 0;
+	
+	// Prints simulation title
+	cout << "\nTIME      ALTITUDE      FUEL AVAILABLE    FUEL REQUIRED" << endl;
+	cout << "---------------------------------------------------------------" << endl;
+	
+	// Constantly increases time and updates values until altitude is 0 or there is enough fuel
+	while (fuelAv <= fuelReq && alt > 0){
+		time += 1;
+		alt = alt - strength * time * time;
+		// Sets negative altitudes to 0
+		if (alt < 1){
+			alt = 0;
+		}
+		fuelReq = calcFuel(alt, strength);
+		fuelAv += 10;
+
+		// Prints status for each minute
+		cout << time << " min      " << alt << " KM      " << fuelAv << " KG             " << fuelReq << " KG" << endl;
+	}
+	// Displays specific message if the ship will crash or not
+	if (alt < 1){
+		cout << "The ship will crash in " << time << " minutes!" << endl;
+		cout << "Recommend sending a goodbye message." << endl;
+	} else {
+		cout << "There will be sufficient fuel to escape in " << time << " minutes." << endl;
+		cout << "Recommend starting engines at that time." << endl;
+	}
+	cout << "*********************************" << endl << endl;
+	return;
+}
