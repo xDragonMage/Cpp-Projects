@@ -1,3 +1,4 @@
+/*
 SUMMARY
 
 A visitor to a city plans to go to two tourist attractions in one day, starting
@@ -100,7 +101,3 @@ int main()
          
     return 0;
 }
-
-/* ========================================================================== */ 
-/*                      E N D   O F   P R O G R A M                           */
-/* ========================================================================== */
